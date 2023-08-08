@@ -28,7 +28,6 @@ def generate_question(context, num_beams=3):
 
     model.eval()
 
-    generated_results = []
 
     origin_seq_len = input_ids.size(-1)
 
@@ -46,22 +45,18 @@ def generate_question(context, num_beams=3):
         num_return_sequences=1,
     )
 
-    print(f'tolist하기전: {decoded_sequences}')
 
-
+    decoded_question_text_list = []
     for decoded_tokens in decoded_sequences.tolist():
         # 반환값 토큰들을 다시 텍스트로 디코딩
         # 입력값은 제외하기 위하여 슬라이싱
         testText = tokenizer.decode(decoded_tokens[:])
-        print(f'토큰화전: {testText}')
-        decoded_question_text = tokenizer.decode(decoded_tokens[origin_seq_len:])
+        # decoded_question_text = tokenizer.decode(decoded_tokens[origin_seq_len:])
+        decoded_question_texts = testText.split("질문:")[-1]
         # 디코딩한 값에서 </s>와 <s>를 삭제
-        decoded_question_text = decoded_question_text.split("</s>")[0].replace("<s>", "")
-        # 질문으로 반환한 값만을 반환하기 위하여 split이후 슬라이싱
-        decoded_question_text = decoded_question_text.split("질문:")[-1]
-        generated_results.append(decoded_question_text)
-        print('---------------------')
-        print(decoded_question_text)
-        print('---------------------')
+        decoded_question_text = decoded_question_texts.split("</s>")
 
-    return generated_results
+        for question in decoded_question_text:
+            decoded_question_text_list.append(question.replace("<s>", ""))
+
+    return decoded_question_text_list

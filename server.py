@@ -17,45 +17,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# 나창대 23.07.31
-# @app.post("/test")
-# async def test(request: Request):
-#     split_text_list = []
-#     input_data = await request.json()
-#     print(input_data)
-
-#     # 텍스트만 파싱
-#     context = input_data["context"]
-
-#     # 전체 내용을 한 번에 처리
-#     result = generate_question(context)
-#     split_text_list.append(result)
-
-#     # 문장을 마침표를 기준으로 문단으로 나누기
-#     sentences = context.split('.')
-#     paragraphs = []
-#     paragraph = ""
-#     for sentence in sentences:
-#         paragraph += sentence.strip() + ". "
-#         if len(paragraph) > 30:
-#             paragraphs.append(paragraph)
-#             paragraph = ""
-
-#     # 마지막 문단 처리
-#     if paragraph.strip():
-#         paragraphs.append(paragraph)
-
-#     # 문단씩 짤라서 처리 range뒤에 숫자만 원하는 문단으로 짜르면 됩니다.
-#     for i in range(0, len(paragraphs), 3):
-#         combined_paragraph = ""
-#         for j in range(3):
-#             if i + j < len(paragraphs):
-#                 combined_paragraph += paragraphs[i + j]
-#         result = generate_question(combined_paragraph)
-#         split_text_list.append(result)
-
-#     return split_text_list
-
 @app.post("/test")
 async def test(request: Request):
     split_text_list = []
@@ -71,6 +32,7 @@ async def test(request: Request):
 
     # 문장을 마침표를 기준으로 문단으로 나누기
     sentences = context.split('.')
+    sentences = sentences[:-1]
     paragraphs = []
     paragraph = ""
     for sentence in sentences:
@@ -87,13 +49,34 @@ async def test(request: Request):
     for i in range(0, len(paragraphs), 3):
         combined_paragraph = ""
         for j in range(3):
-            if i + j < (len(paragraphs) - 1):
+            if i + j < len(paragraphs):
                 combined_paragraph += paragraphs[i + j]
-                print(f'모델 입력 전: {combined_paragraph}')
         result = generate_question(combined_paragraph)
         split_text_list.append(result)
+    new_list = []
 
-    return split_text_list
+    for s in split_text_list:
+        for s2 in s:
+            s3_list = []
+            # split 함수의 결과에 구분자를 추가
+            for end in ['요.', '?']:
+                substrings = s2.split(end)
+                for i, s3 in enumerate(substrings):
+                    s3 = s3.replace("*", "")
+                    s3 = s3.replace("-", "")
+                    s3 = s3.replace('"', "")
+                    s3 = s3.replace("*", "")
+                    if i < len(substrings) - 1:
+                        if s3.endswith('요.') or s3.endswith('?'):
+                            s3_list.append(s3 + end)
+                    elif s3:
+                        if s3.endswith('요.') or s3.endswith('?'):
+                            s3_list.append(s3)
+            new_list += s3_list
+
+    print(new_list)
+
+    return new_list
 
 @app.post("/chat")
 async def test(request: Request):
