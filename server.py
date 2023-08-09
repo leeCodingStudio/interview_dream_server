@@ -104,4 +104,4 @@ async def test(request: Request):
                         s3_list.append(s3)
     new_list += s3_list
 
-    return new_list
+    return [new_list[0]]
