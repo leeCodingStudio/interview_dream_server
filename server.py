@@ -83,5 +83,25 @@ async def test(request: Request):
     input_data = await request.json()
     # 텍스트만 파싱
     context = input_data["context"]
+    text_list = generate_question(context)
 
-    return generate_question(context)
+    new_list = []
+    s3_list = []
+    for s in text_list:
+        # split 함수의 결과에 구분자를 추가
+        for end in ['요.', '?']:
+            substrings = s.split(end)
+            for i, s3 in enumerate(substrings):
+                s3 = s3.replace("*", "")
+                s3 = s3.replace("-", "")
+                s3 = s3.replace('"', "")
+                s3 = s3.replace("*", "")
+                if i < len(substrings) - 1:
+                    if s3.endswith('요.') or s3.endswith('?'):
+                        s3_list.append(s3 + end)
+                elif s3:
+                    if s3.endswith('요.') or s3.endswith('?'):
+                        s3_list.append(s3)
+    new_list += s3_list
+
+    return new_list
