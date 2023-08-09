@@ -103,5 +103,7 @@ async def test(request: Request):
                     if s3.endswith('요.') or s3.endswith('?'):
                         s3_list.append(s3)
     new_list += s3_list
+    if len(new_list) == 0:
+        new_list.append('없음')
 
     return [new_list[0]]
