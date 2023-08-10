@@ -10,11 +10,16 @@ origins = ["https://kdt-team-2.github.io"]
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
-    allow_credentials=False,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
+@app.middleware("https")
+async def add_cors_credentials_header(request: Request, call_next):
+    response = await call_next(request)
+    response.headers["Access-Control-Allow-Credentials"] = "true"
+    return response
 
 @app.post("/test")
 async def test(request: Request):
