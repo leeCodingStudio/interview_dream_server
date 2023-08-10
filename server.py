@@ -5,8 +5,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 app = fastapi.FastAPI()
 # 모든 주소(*)를 허용
-origins = ["*"]
 # CORSMiddleware를 등록합니다.
+origins = ["https://kdt-team-2.github.io"]  # 클라이언트 도메인 추가 필요
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
